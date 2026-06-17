@@ -36,9 +36,8 @@ class CellWrapper extends BaseWrapper
             $this->sheetWrapper->setColumn($index);
         }
 
-        $this->object = $this->sheetWrapper->getObject()->getCellByColumnAndRow(
-            $this->sheetWrapper->getColumn(),
-            $this->sheetWrapper->getRow()
+        $this->object = $this->sheetWrapper->getObject()->getCell(
+            Coordinate::stringFromColumnIndex($this->sheetWrapper->getColumn()) . $this->sheetWrapper->getRow()
         );
 
         if ($value !== null) {
