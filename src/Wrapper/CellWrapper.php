@@ -40,7 +40,7 @@ class CellWrapper extends BaseWrapper
             Coordinate::stringFromColumnIndex($this->sheetWrapper->getColumn()) . $this->sheetWrapper->getRow()
         );
 
-        if ($value !== null) {
+        if ($value !== null && $value !== '') {
             if (isset($properties['dataType'])) {
                 $this->object->setValueExplicit($value, $properties['dataType']);
             } else {
