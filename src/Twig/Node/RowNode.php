@@ -2,15 +2,11 @@
 
 namespace MewesK\TwigSpreadsheetBundle\Twig\Node;
 
-/**
- * Class RowNode.
- */
+use Twig\Compiler;
+
 class RowNode extends BaseNode
 {
-    /**
-     * @param \Twig_Compiler $compiler
-     */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler->addDebugInfo($this)
             ->write(self::CODE_FIX_CONTEXT)
@@ -23,9 +19,6 @@ class RowNode extends BaseNode
             ->write(self::CODE_INSTANCE.'->endRow();'.PHP_EOL);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAllowedParents(): array
     {
         return [

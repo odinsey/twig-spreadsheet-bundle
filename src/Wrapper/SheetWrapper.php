@@ -3,69 +3,36 @@
 namespace MewesK\TwigSpreadsheetBundle\Wrapper;
 
 use PhpOffice\PhpSpreadsheet\Exception;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\ColumnDimension;
 use PhpOffice\PhpSpreadsheet\Worksheet\RowDimension;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Twig\Environment;
 
-/**
- * Class SheetWrapper.
- */
 class SheetWrapper extends BaseWrapper
 {
-    /**
-     * @var int
-     */
     const COLUMN_DEFAULT = 1;
-    /**
-     * @var int
-     */
     const ROW_DEFAULT = 1;
 
-    /**
-     * @var DocumentWrapper
-     */
-    protected $documentWrapper;
+    protected DocumentWrapper $documentWrapper;
+    protected ?Worksheet $object = null;
+    protected ?int $row = null;
+    protected ?int $column = null;
 
-    /**
-     * @var Worksheet|null
-     */
-    protected $object;
-    /**
-     * @var null|int
-     */
-    protected $row;
-    /**
-     * @var null|int
-     */
-    protected $column;
-
-    /**
-     * SheetWrapper constructor.
-     *
-     * @param array             $context
-     * @param \Twig_Environment $environment
-     * @param DocumentWrapper   $documentWrapper
-     */
-    public function __construct(array $context, \Twig_Environment $environment, DocumentWrapper $documentWrapper)
+    public function __construct(array $context, Environment $environment, DocumentWrapper $documentWrapper)
     {
         parent::__construct($context, $environment);
 
         $this->documentWrapper = $documentWrapper;
-
-        $this->object = null;
-        $this->row = null;
-        $this->column = null;
     }
 
     /**
      * @param int|string|null $index
-     * @param array $properties
      *
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \RuntimeException
      * @throws \LogicException
      */
-    public function start($index, array $properties = [])
+    public function start(mixed $index, array $properties = []): void
     {
         if ($this->documentWrapper->getObject() === null) {
             throw new \LogicException();
@@ -75,12 +42,10 @@ class SheetWrapper extends BaseWrapper
             $this->object = $this->documentWrapper->getObject()->setActiveSheetIndex($index);
         } elseif (is_string($index)) {
             if (!$this->documentWrapper->getObject()->sheetNameExists($index)) {
-                // create new sheet with a name
                 $this->documentWrapper->getObject()->createSheet()->setTitle($index);
             }
             $this->object = $this->documentWrapper->getObject()->setActiveSheetIndexByName($index);
         } else {
-            // create new sheet without a name
             $this->documentWrapper->getObject()->createSheet();
             $this->object = $this->documentWrapper->getObject()->setActiveSheetIndex(0);
         }
@@ -95,7 +60,7 @@ class SheetWrapper extends BaseWrapper
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \LogicException
      */
-    public function end()
+    public function end(): void
     {
         if ($this->object === null) {
             throw new \LogicException();
@@ -106,9 +71,6 @@ class SheetWrapper extends BaseWrapper
             isset($this->parameters['properties']['columnDimension']) &&
             is_array($this->parameters['properties']['columnDimension'])
         ) {
-            /**
-             * @var array $columnDimension
-             */
             $columnDimension = $this->parameters['properties']['columnDimension'];
             foreach ($columnDimension as $key => $value) {
                 if (isset($value['autoSize'])) {
@@ -135,66 +97,47 @@ class SheetWrapper extends BaseWrapper
         $this->row = null;
     }
 
-    public function increaseRow()
+    public function increaseRow(): void
     {
         $this->row = $this->row === null ? self::ROW_DEFAULT : $this->row + 1;
     }
 
-    public function increaseColumn()
+    public function increaseColumn(): void
     {
         $this->column = $this->column === null ? self::COLUMN_DEFAULT : $this->column + 1;
     }
 
-    /**
-     * @return Worksheet
-     */
-    public function getObject(): Worksheet
+    public function getObject(): ?Worksheet
     {
         return $this->object;
     }
 
-    /**
-     * @param Worksheet $object
-     */
-    public function setObject(Worksheet $object)
+    public function setObject(Worksheet $object): void
     {
         $this->object = $object;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getRow()
+    public function getRow(): ?int
     {
         return $this->row;
     }
 
-    /**
-     * @param int|null $row
-     */
-    public function setRow($row)
+    public function setRow(?int $row): void
     {
         $this->row = $row;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getColumn()
+    public function getColumn(): ?int
     {
         return $this->column;
     }
 
-    /**
-     * @param int|null $column
-     */
-    public function setColumn($column)
+    public function setColumn(?int $column): void
     {
         $this->column = $column;
     }
 
     /**
-     * {@inheritdoc}
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
     protected function configureMappings(): array

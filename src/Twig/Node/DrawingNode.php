@@ -2,15 +2,11 @@
 
 namespace MewesK\TwigSpreadsheetBundle\Twig\Node;
 
-/**
- * Class DrawingNode.
- */
+use Twig\Compiler;
+
 class DrawingNode extends BaseNode
 {
-    /**
-     * @param \Twig_Compiler $compiler
-     */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler->addDebugInfo($this)
             ->write(self::CODE_FIX_CONTEXT)
@@ -21,9 +17,6 @@ class DrawingNode extends BaseNode
             ->write(self::CODE_INSTANCE.'->endDrawing();'.PHP_EOL);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAllowedParents(): array
     {
         return [

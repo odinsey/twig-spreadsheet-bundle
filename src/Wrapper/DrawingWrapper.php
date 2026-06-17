@@ -5,60 +5,31 @@ namespace MewesK\TwigSpreadsheetBundle\Wrapper;
 use MewesK\TwigSpreadsheetBundle\Helper\Filesystem;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\HeaderFooterDrawing;
+use Twig\Environment;
 
-/**
- * Class DrawingWrapper.
- */
 class DrawingWrapper extends BaseWrapper
 {
-    /**
-     * @var SheetWrapper
-     */
-    protected $sheetWrapper;
-    /**
-     * @var HeaderFooterWrapper
-     */
-    protected $headerFooterWrapper;
+    protected SheetWrapper $sheetWrapper;
+    protected HeaderFooterWrapper $headerFooterWrapper;
+    protected Drawing|HeaderFooterDrawing|null $object = null;
+    protected array $attributes;
 
-    /**
-     * @var Drawing|HeaderFooterDrawing|null
-     */
-    protected $object;
-    /**
-     * @var array
-     */
-    protected $attributes;
-
-    /**
-     * DrawingWrapper constructor.
-     *
-     * @param array               $context
-     * @param \Twig_Environment   $environment
-     * @param SheetWrapper        $sheetWrapper
-     * @param HeaderFooterWrapper $headerFooterWrapper
-     * @param array             $attributes
-     */
-    public function __construct(array $context, \Twig_Environment $environment, SheetWrapper $sheetWrapper, HeaderFooterWrapper $headerFooterWrapper, array $attributes = [])
+    public function __construct(array $context, Environment $environment, SheetWrapper $sheetWrapper, HeaderFooterWrapper $headerFooterWrapper, array $attributes = [])
     {
         parent::__construct($context, $environment);
 
         $this->sheetWrapper = $sheetWrapper;
         $this->headerFooterWrapper = $headerFooterWrapper;
-
-        $this->object = null;
         $this->attributes = $attributes;
     }
 
     /**
-     * @param string $path
-     * @param array  $properties
-     *
      * @throws \LogicException
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
-    public function start(string $path, array $properties = [])
+    public function start(string $path, array $properties = []): void
     {
         if ($this->sheetWrapper->getObject() === null) {
             throw new \LogicException();
@@ -96,10 +67,7 @@ class DrawingWrapper extends BaseWrapper
             $this->object->setPath($tempPath);
             $this->headerFooterWrapper->getObject()->addImage($this->object, $location);
             $this->headerFooterWrapper->setParameters($headerFooterParameters);
-        }
-
-        // add to worksheet
-        else {
+        } else {
             $this->object = new Drawing();
             $this->object->setWorksheet($this->sheetWrapper->getObject());
             $this->object->setPath($tempPath);
@@ -108,31 +76,22 @@ class DrawingWrapper extends BaseWrapper
         $this->setProperties($properties);
     }
 
-    public function end()
+    public function end(): void
     {
         $this->object = null;
         $this->parameters = [];
     }
 
-    /**
-     * @return Drawing
-     */
-    public function getObject(): Drawing
+    public function getObject(): Drawing|HeaderFooterDrawing|null
     {
         return $this->object;
     }
 
-    /**
-     * @param Drawing $object
-     */
-    public function setObject(Drawing $object)
+    public function setObject(Drawing $object): void
     {
         $this->object = $object;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configureMappings(): array
     {
         return [
@@ -158,20 +117,14 @@ class DrawingWrapper extends BaseWrapper
     }
 
     /**
-     * @param string $path
-     *
      * @throws \InvalidArgumentException
      * @throws \Symfony\Component\Filesystem\Exception\IOException
-     *
-     * @return string
      */
     private function createTempCopy(string $path): string
     {
-        // create temp path
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         $tempPath = sprintf('%s/tsb_%s%s', $this->attributes['cache']['bitmap'], md5($path), $extension ? '.'.$extension : '');
 
-        // create local copy
         if (!Filesystem::exists($tempPath)) {
             $data = file_get_contents($path);
             if ($data === false) {

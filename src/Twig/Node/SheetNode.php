@@ -2,15 +2,11 @@
 
 namespace MewesK\TwigSpreadsheetBundle\Twig\Node;
 
-/**
- * Class SheetNode.
- */
+use Twig\Compiler;
+
 class SheetNode extends BaseNode
 {
-    /**
-     * @param \Twig_Compiler $compiler
-     */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler->addDebugInfo($this)
             ->write(self::CODE_FIX_CONTEXT)
@@ -23,9 +19,6 @@ class SheetNode extends BaseNode
             ->write(self::CODE_INSTANCE.'->endSheet();'.PHP_EOL);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAllowedParents(): array
     {
         return [

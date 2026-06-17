@@ -3,36 +3,32 @@
 namespace MewesK\TwigSpreadsheetBundle\Twig\NodeVisitor;
 
 use MewesK\TwigSpreadsheetBundle\Wrapper\PhpSpreadsheetWrapper;
+use Twig\Environment;
+use Twig\Node\Expression\ArrayExpression;
+use Twig\Node\Expression\ConstantExpression;
+use Twig\Node\Expression\MethodCallExpression;
+use Twig\Node\Expression\NameExpression;
+use Twig\Node\Node;
+use Twig\NodeVisitor\AbstractNodeVisitor;
 
-/**
- * Class MacroContextNodeVisitor.
- */
-class MacroContextNodeVisitor extends \Twig_BaseNodeVisitor
+class MacroContextNodeVisitor extends AbstractNodeVisitor
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getPriority()
+    public function getPriority(): int
     {
         return 0;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doEnterNode(\Twig_Node $node, \Twig_Environment $env)
+    protected function doEnterNode(Node $node, Environment $env): Node
     {
         // add wrapper instance as argument on all method calls
-        if ($node instanceof \Twig_Node_Expression_MethodCall) {
-            $keyNode = new \Twig_Node_Expression_Constant(PhpSpreadsheetWrapper::INSTANCE_KEY, $node->getTemplateLine());
+        if ($node instanceof MethodCallExpression) {
+            $keyNode = new ConstantExpression(PhpSpreadsheetWrapper::INSTANCE_KEY, $node->getTemplateLine());
 
             // add wrapper even if it not exists, we fix that later
-            $valueNode = new \Twig_Node_Expression_Name(PhpSpreadsheetWrapper::INSTANCE_KEY, $node->getTemplateLine());
+            $valueNode = new NameExpression(PhpSpreadsheetWrapper::INSTANCE_KEY, $node->getTemplateLine());
             $valueNode->setAttribute('ignore_strict_check', true);
 
-            /**
-             * @var \Twig_Node_Expression_Array $argumentsNode
-             */
+            /** @var ArrayExpression $argumentsNode */
             $argumentsNode = $node->getNode('arguments');
             $argumentsNode->addElement($valueNode, $keyNode);
         }
@@ -40,10 +36,7 @@ class MacroContextNodeVisitor extends \Twig_BaseNodeVisitor
         return $node;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doLeaveNode(\Twig_Node $node, \Twig_Environment $env)
+    protected function doLeaveNode(Node $node, Environment $env): Node
     {
         return $node;
     }

@@ -3,16 +3,11 @@
 namespace MewesK\TwigSpreadsheetBundle\Twig\Node;
 
 use MewesK\TwigSpreadsheetBundle\Wrapper\PhpSpreadsheetWrapper;
+use Twig\Compiler;
 
-/**
- * Class DocumentNode.
- */
 class DocumentNode extends BaseNode
 {
-    /**
-     * @param \Twig_Compiler $compiler
-     */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler->addDebugInfo($this)
             ->write("ob_start();\n")
@@ -29,9 +24,6 @@ class DocumentNode extends BaseNode
             ->write('unset('.self::CODE_INSTANCE.');'.PHP_EOL);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAllowedParents(): array
     {
         return [];

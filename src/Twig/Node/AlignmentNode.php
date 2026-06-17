@@ -3,39 +3,23 @@
 namespace MewesK\TwigSpreadsheetBundle\Twig\Node;
 
 use MewesK\TwigSpreadsheetBundle\Wrapper\HeaderFooterWrapper;
+use Twig\Compiler;
 
-/**
- * Class AlignmentNode.
- */
 class AlignmentNode extends BaseNode
 {
-    /**
-     * @var string
-     */
-    private $alignment;
+    private string $alignment;
 
     /**
-     * AlignmentNode constructor.
-     *
-     * @param array       $nodes
-     * @param array       $attributes
-     * @param int         $lineNo
-     * @param string|null $tag
-     * @param string      $alignment
-     *
      * @throws \InvalidArgumentException
      */
-    public function __construct(array $nodes = [], array $attributes = [], int $lineNo = 0, string $tag = null, string $alignment = HeaderFooterWrapper::ALIGNMENT_CENTER)
+    public function __construct(array $nodes = [], array $attributes = [], int $lineNo = 0, ?string $tag = null, string $alignment = HeaderFooterWrapper::ALIGNMENT_CENTER)
     {
         parent::__construct($nodes, $attributes, $lineNo, $tag);
 
         $this->alignment = HeaderFooterWrapper::validateAlignment(strtolower($alignment));
     }
 
-    /**
-     * @param \Twig_Compiler $compiler
-     */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler->addDebugInfo($this)
             ->write(self::CODE_FIX_CONTEXT)
@@ -49,9 +33,6 @@ class AlignmentNode extends BaseNode
             ->write('unset($alignmentValue);'.PHP_EOL);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAllowedParents(): array
     {
         return [

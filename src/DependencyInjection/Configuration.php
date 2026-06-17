@@ -5,20 +5,15 @@ namespace MewesK\TwigSpreadsheetBundle\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * Class Configuration.
- */
 class Configuration implements ConfigurationInterface
 {
     /**
-     * {@inheritdoc}
-     *
      * @throws \RuntimeException
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('mewes_k_twig_spreadsheet');
-        $rootNode = $treeBuilder->getRootNode('mewes_k_twig_spreadsheet');
+        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->children()

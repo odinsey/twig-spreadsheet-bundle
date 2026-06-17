@@ -2,15 +2,11 @@
 
 namespace MewesK\TwigSpreadsheetBundle\Twig\Node;
 
-/**
- * Class CellNode.
- */
+use Twig\Compiler;
+
 class CellNode extends BaseNode
 {
-    /**
-     * @param \Twig_Compiler $compiler
-     */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler->addDebugInfo($this)
             ->write(self::CODE_FIX_CONTEXT)
@@ -27,9 +23,6 @@ class CellNode extends BaseNode
             ->write('unset($cellValue);'.PHP_EOL);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAllowedParents(): array
     {
         return [

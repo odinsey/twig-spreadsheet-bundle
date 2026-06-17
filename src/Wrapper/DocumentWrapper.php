@@ -9,54 +9,34 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\BaseWriter;
 use PhpOffice\PhpSpreadsheet\Writer\Pdf\Mpdf;
 use Symfony\Bridge\Twig\AppVariable;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
-/**
- * Class DocumentWrapper.
- */
 class DocumentWrapper extends BaseWrapper
 {
-    /**
-     * @var Spreadsheet|null
-     */
-    protected $object;
-    /**
-     * @var array
-     */
-    protected $attributes;
+    protected ?Spreadsheet $object = null;
+    protected array $attributes;
 
-    /**
-     * DocumentWrapper constructor.
-     *
-     * @param array             $context
-     * @param \Twig_Environment $environment
-     * @param array             $attributes
-     */
-    public function __construct(array $context, \Twig_Environment $environment, array $attributes = [])
+    public function __construct(array $context, Environment $environment, array $attributes = [])
     {
         parent::__construct($context, $environment);
 
-        $this->object = null;
         $this->attributes = $attributes;
     }
 
     /**
-     * @param array $properties
-     *
      * @throws \RuntimeException
      * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
-    public function start(array $properties = [])
+    public function start(array $properties = []): void
     {
         // load template
         if (isset($properties['template'])) {
             $templatePath = $this->expandPath($properties['template']);
             $reader = IOFactory::createReaderForFile($templatePath);
             $this->object = $reader->load($templatePath);
-        }
-
-        // create new
-        else {
+        } else {
             $this->object = new Spreadsheet();
             $this->object->removeSheetByIndex(0);
         }
@@ -73,7 +53,7 @@ class DocumentWrapper extends BaseWrapper
      * @throws \Symfony\Component\Filesystem\Exception\IOException
      * @throws \LogicException
      */
-    public function end()
+    public function end(): void
     {
         if ($this->object === null) {
             throw new \LogicException();
@@ -84,13 +64,7 @@ class DocumentWrapper extends BaseWrapper
         // try document property
         if (isset($this->parameters['format'])) {
             $format = $this->parameters['format'];
-        }
-
-         // try Symfony request
-        elseif (isset($this->context['app'])) {
-            /**
-             * @var AppVariable
-             */
+        } elseif (isset($this->context['app'])) {
             $appVariable = $this->context['app'];
             if ($appVariable instanceof AppVariable && $appVariable->getRequest() !== null) {
                 $format = $appVariable->getRequest()->getRequestFormat();
@@ -112,9 +86,7 @@ class DocumentWrapper extends BaseWrapper
             IOFactory::registerWriter('Pdf', Mpdf::class);
         }
 
-        /**
-         * @var BaseWriter $writer
-         */
+        /** @var BaseWriter $writer */
         $writer = IOFactory::createWriter($this->object, ucfirst($format));
         $writer->setPreCalculateFormulas($this->attributes['preCalculateFormulas'] ?? true);
 
@@ -130,25 +102,16 @@ class DocumentWrapper extends BaseWrapper
         $this->parameters = [];
     }
 
-    /**
-     * @return Spreadsheet|null
-     */
-    public function getObject()
+    public function getObject(): ?Spreadsheet
     {
         return $this->object;
     }
 
-    /**
-     * @param Spreadsheet|null $object
-     */
-    public function setObject(Spreadsheet $object = null)
+    public function setObject(?Spreadsheet $object = null): void
     {
         $this->object = $object;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configureMappings(): array
     {
         return [
@@ -176,23 +139,11 @@ class DocumentWrapper extends BaseWrapper
         ];
     }
 
-    /**
-     * Resolves paths using Twig namespaces.
-     * The path must start with the namespace.
-     * Namespaces are case sensitive.
-     *
-     * @param string $path
-     *
-     * @return string
-     */
     private function expandPath(string $path): string
     {
         $loader = $this->environment->getLoader();
 
-        if ($loader instanceof \Twig_Loader_Filesystem && mb_strpos($path, '@') === 0) {
-            /*
-             * @var \Twig_Loader_Filesystem
-             */
+        if ($loader instanceof FilesystemLoader && mb_strpos($path, '@') === 0) {
             foreach ($loader->getNamespaces() as $namespace) {
                 if (mb_strpos($path, $namespace) === 1) {
                     foreach ($loader->getPaths($namespace) as $namespacePath) {

@@ -2,24 +2,13 @@
 
 namespace MewesK\TwigSpreadsheetBundle\Wrapper;
 
-/**
- * Class SheetWrapper.
- */
+use Twig\Environment;
+
 class RowWrapper extends BaseWrapper
 {
-    /**
-     * @var SheetWrapper
-     */
-    protected $sheetWrapper;
+    protected SheetWrapper $sheetWrapper;
 
-    /**
-     * RowWrapper constructor.
-     *
-     * @param array             $context
-     * @param \Twig_Environment $environment
-     * @param SheetWrapper      $sheetWrapper
-     */
-    public function __construct(array $context, \Twig_Environment $environment, SheetWrapper $sheetWrapper)
+    public function __construct(array $context, Environment $environment, SheetWrapper $sheetWrapper)
     {
         parent::__construct($context, $environment);
 
@@ -27,11 +16,9 @@ class RowWrapper extends BaseWrapper
     }
 
     /**
-     * @param null|int $index
-     *
      * @throws \LogicException
      */
-    public function start(int $index = null)
+    public function start(?int $index = null): void
     {
         if ($this->sheetWrapper->getObject() === null) {
             throw new \LogicException();
@@ -47,7 +34,7 @@ class RowWrapper extends BaseWrapper
     /**
      * @throws \LogicException
      */
-    public function end()
+    public function end(): void
     {
         if ($this->sheetWrapper->getObject() === null) {
             throw new \LogicException();

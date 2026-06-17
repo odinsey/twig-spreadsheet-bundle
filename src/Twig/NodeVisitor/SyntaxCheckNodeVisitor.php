@@ -4,31 +4,25 @@ namespace MewesK\TwigSpreadsheetBundle\Twig\NodeVisitor;
 
 use MewesK\TwigSpreadsheetBundle\Twig\Node\BaseNode;
 use MewesK\TwigSpreadsheetBundle\Twig\Node\DocumentNode;
+use Twig\Environment;
+use Twig\Error\SyntaxError;
+use Twig\Node\Node;
+use Twig\Node\TextNode;
+use Twig\NodeVisitor\AbstractNodeVisitor;
 
-/**
- * Class SyntaxCheckNodeVisitor.
- */
-class SyntaxCheckNodeVisitor extends \Twig_BaseNodeVisitor
+class SyntaxCheckNodeVisitor extends AbstractNodeVisitor
 {
-    /**
-     * @var array
-     */
-    protected $path = [];
+    protected array $path = [];
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getPriority()
+    public function getPriority(): int
     {
         return 0;
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @throws \Twig_Error_Syntax
+     * @throws SyntaxError
      */
-    protected function doEnterNode(\Twig_Node $node, \Twig_Environment $env)
+    protected function doEnterNode(Node $node, Environment $env): Node
     {
         try {
             if ($node instanceof BaseNode) {
@@ -36,21 +30,18 @@ class SyntaxCheckNodeVisitor extends \Twig_BaseNodeVisitor
             } else {
                 $this->checkAllowedChildren($node);
             }
-        } catch (\Twig_Error_Syntax $e) {
+        } catch (SyntaxError $e) {
             // reset path since throwing an error prevents doLeaveNode to be called
             $this->path = [];
             throw $e;
         }
 
-        $this->path[] = $node !== null ? get_class($node) : null;
+        $this->path[] = get_class($node);
 
         return $node;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function doLeaveNode(\Twig_Node $node, \Twig_Environment $env)
+    protected function doLeaveNode(Node $node, Environment $env): Node
     {
         array_pop($this->path);
 
@@ -58,27 +49,22 @@ class SyntaxCheckNodeVisitor extends \Twig_BaseNodeVisitor
     }
 
     /**
-     * @param \Twig_Node $node
-     *
-     * @throws \Twig_Error_Syntax
+     * @throws SyntaxError
      */
-    private function checkAllowedChildren(\Twig_Node $node)
+    private function checkAllowedChildren(Node $node): void
     {
         $hasDocumentNode = false;
         $hasTextNode = false;
 
-        /**
-         * @var \Twig_Node $currentNode
-         */
-        foreach ($node->getIterator() as $currentNode) {
-            if ($currentNode instanceof \Twig_Node_Text) {
+        foreach ($node as $currentNode) {
+            if ($currentNode instanceof TextNode) {
                 if ($hasDocumentNode) {
-                    throw new \Twig_Error_Syntax(sprintf('Node "%s" is not allowed after Node "%s".', \Twig_Node_Text::class, DocumentNode::class));
+                    throw new SyntaxError(sprintf('Node "%s" is not allowed after Node "%s".', TextNode::class, DocumentNode::class));
                 }
                 $hasTextNode = true;
             } elseif ($currentNode instanceof DocumentNode) {
                 if ($hasTextNode) {
-                    throw new \Twig_Error_Syntax(sprintf('Node "%s" is not allowed before Node "%s".', \Twig_Node_Text::class, DocumentNode::class));
+                    throw new SyntaxError(sprintf('Node "%s" is not allowed before Node "%s".', TextNode::class, DocumentNode::class));
                 }
                 $hasDocumentNode = true;
             }
@@ -86,11 +72,9 @@ class SyntaxCheckNodeVisitor extends \Twig_BaseNodeVisitor
     }
 
     /**
-     * @param BaseNode $node
-     *
-     * @throws \Twig_Error_Syntax
+     * @throws SyntaxError
      */
-    private function checkAllowedParents(BaseNode $node)
+    private function checkAllowedParents(BaseNode $node): void
     {
         $parentName = null;
 
@@ -114,6 +98,6 @@ class SyntaxCheckNodeVisitor extends \Twig_BaseNodeVisitor
             }
         }
 
-        throw new \Twig_Error_Syntax(sprintf('Node "%s" is not allowed inside of Node "%s".', get_class($node), $parentName));
+        throw new SyntaxError(sprintf('Node "%s" is not allowed inside of Node "%s".', get_class($node), $parentName));
     }
 }
