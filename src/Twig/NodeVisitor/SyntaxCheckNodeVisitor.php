@@ -8,9 +8,9 @@ use Twig\Environment;
 use Twig\Error\SyntaxError;
 use Twig\Node\Node;
 use Twig\Node\TextNode;
-use Twig\NodeVisitor\AbstractNodeVisitor;
+use Twig\NodeVisitor\NodeVisitorInterface;
 
-class SyntaxCheckNodeVisitor extends AbstractNodeVisitor
+class SyntaxCheckNodeVisitor implements NodeVisitorInterface
 {
     protected array $path = [];
 
@@ -22,7 +22,7 @@ class SyntaxCheckNodeVisitor extends AbstractNodeVisitor
     /**
      * @throws SyntaxError
      */
-    protected function doEnterNode(Node $node, Environment $env): Node
+    public function enterNode(Node $node, Environment $env): Node
     {
         try {
             if ($node instanceof BaseNode) {
@@ -31,7 +31,7 @@ class SyntaxCheckNodeVisitor extends AbstractNodeVisitor
                 $this->checkAllowedChildren($node);
             }
         } catch (SyntaxError $e) {
-            // reset path since throwing an error prevents doLeaveNode to be called
+            // reset path since throwing an error prevents leaveNode to be called
             $this->path = [];
             throw $e;
         }
@@ -41,7 +41,7 @@ class SyntaxCheckNodeVisitor extends AbstractNodeVisitor
         return $node;
     }
 
-    protected function doLeaveNode(Node $node, Environment $env): Node
+    public function leaveNode(Node $node, Environment $env): Node
     {
         array_pop($this->path);
 

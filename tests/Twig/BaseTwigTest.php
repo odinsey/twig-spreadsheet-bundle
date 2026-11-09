@@ -5,6 +5,10 @@ namespace MewesK\TwigSpreadsheetBundle\Tests\Twig;
 use MewesK\TwigSpreadsheetBundle\DependencyInjection\Configuration;
 use MewesK\TwigSpreadsheetBundle\Helper\Filesystem;
 use MewesK\TwigSpreadsheetBundle\Twig\TwigSpreadsheetExtension;
+use PHPUnit\Framework\TestCase;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Loader\FilesystemLoader;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Bridge\Twig\AppVariable;
@@ -15,7 +19,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * Class BaseTwigTest.
  */
-abstract class BaseTwigTest extends \PHPUnit_Framework_TestCase
+abstract class BaseTwigTest extends TestCase
 {
     const CACHE_PATH = './../../var/cache';
     const RESULT_PATH = './../../var/result';
@@ -23,16 +27,16 @@ abstract class BaseTwigTest extends \PHPUnit_Framework_TestCase
     const TEMPLATE_PATH = './Fixtures/templates';
 
     /**
-     * @var \Twig_Environment
+     * @var Environment
      */
     protected static $environment;
 
     /**
      * {@inheritdoc}
      *
-     * @throws \Twig_Error_Loader
+     * @throws LoaderError
      */
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $cachePath = sprintf('%s/%s/%s', __DIR__, static::CACHE_PATH, str_replace('\\', DIRECTORY_SEPARATOR, static::class));
 
@@ -41,10 +45,10 @@ abstract class BaseTwigTest extends \PHPUnit_Framework_TestCase
         Filesystem::remove(sprintf('%s/%s/%s', __DIR__, static::RESULT_PATH, str_replace('\\', DIRECTORY_SEPARATOR, static::class)));
 
         // set up Twig environment
-        $twigFileSystem = new \Twig_Loader_Filesystem([sprintf('%s/%s', __DIR__, static::RESOURCE_PATH)]);
+        $twigFileSystem = new FilesystemLoader([sprintf('%s/%s', __DIR__, static::RESOURCE_PATH)]);
         $twigFileSystem->addPath(sprintf('%s/%s', __DIR__, static::TEMPLATE_PATH), 'templates');
 
-        static::$environment = new \Twig_Environment($twigFileSystem, ['debug' => true, 'strict_variables' => true]);
+        static::$environment = new Environment($twigFileSystem, ['debug' => true, 'strict_variables' => true]);
         static::$environment->addExtension(new TwigSpreadsheetExtension([
             'pre_calculate_formulas' => true,
             'cache' => [
@@ -59,8 +63,8 @@ abstract class BaseTwigTest extends \PHPUnit_Framework_TestCase
      * @param string $templateName
      * @param string $format
      *
-     * @throws \Twig_Error_Syntax
-     * @throws \Twig_Error_Loader
+     * @throws SyntaxError
+     * @throws LoaderError
      * @throws \Symfony\Component\Filesystem\Exception\IOException
      *
      * @return Spreadsheet|string
