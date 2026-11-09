@@ -21,9 +21,9 @@ The supported output formats are directly based on the capabilities of PhpSpread
 
 **PHP & Symfony:**
 
- * PHP 8.0 or newer
- * Symfony 5.4, 6.x or 7.x
- * Twig 3.x
+ * PHP 8.1 or newer (tested on 8.1 to 8.4)
+ * Symfony 5.4, 6.4 or 7.x
+ * Twig 3.12 or newer (no deprecation notices on Twig 3.21+)
 
 **PhpSpreadsheet:**
 
@@ -42,7 +42,8 @@ composer require odinsey/twig-spreadsheet-bundle
 
 | Version | PHP | Symfony | Twig |
 |---------|-----|---------|------|
-| 1.x     | 8.0+ | 5.4 / 6 / 7 | 3.x |
+| 1.1.x   | 8.1+ | 5.4 / 6.4 / 7 | 3.12+ |
+| 1.0.x   | 8.0+ | 5.4 / 6 / 7 | 3.x |
 | 0.9.x   | 7.0+ | 3.2 / 4 / 5 | 2.x |
 
 ## License

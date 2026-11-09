@@ -38,7 +38,7 @@ class XlsxTwigTest extends BaseTwigTest
         static::assertEquals('Test errorTitle', $dataValidation->getErrorTitle(), 'Unexpected value in errorTitle');
         static::assertEquals('', $dataValidation->getFormula1(), 'Unexpected value in formula1');
         static::assertEquals('', $dataValidation->getFormula2(), 'Unexpected value in formula2');
-        static::assertEquals('', $dataValidation->getOperator(), 'Unexpected value in operator');
+        static::assertEquals('between', $dataValidation->getOperator(), 'Unexpected value in operator');
         static::assertEquals('Test prompt', $dataValidation->getPrompt(), 'Unexpected value in prompt');
         static::assertEquals('Test promptTitle', $dataValidation->getPromptTitle(), 'Unexpected value in promptTitle');
         static::assertTrue($dataValidation->getShowDropDown(), 'Unexpected value in showDropDown');
@@ -96,12 +96,12 @@ class XlsxTwigTest extends BaseTwigTest
 
         $headerFooter = $sheet->getHeaderFooter();
         static::assertNotNull($headerFooter, 'HeaderFooter does not exist');
-        static::assertContains('Left area header', $headerFooter->getOddHeader(), 'Unexpected value in oddHeader');
-        static::assertContains('12Center area header', $headerFooter->getOddHeader(), 'Unexpected value in oddHeader');
-        static::assertContains('12Right area header', $headerFooter->getOddHeader(), 'Unexpected value in oddHeader');
-        static::assertContains('Left area footer', $headerFooter->getOddFooter(), 'Unexpected value in oddFooter');
-        static::assertContains('12Center area footer', $headerFooter->getOddFooter(), 'Unexpected value in oddFooter');
-        static::assertContains('12Right area footer', $headerFooter->getOddFooter(), 'Unexpected value in oddFooter');
+        static::assertStringContainsString('Left area header', $headerFooter->getOddHeader(), 'Unexpected value in oddHeader');
+        static::assertStringContainsString('12Center area header', $headerFooter->getOddHeader(), 'Unexpected value in oddHeader');
+        static::assertStringContainsString('12Right area header', $headerFooter->getOddHeader(), 'Unexpected value in oddHeader');
+        static::assertStringContainsString('Left area footer', $headerFooter->getOddFooter(), 'Unexpected value in oddFooter');
+        static::assertStringContainsString('12Center area footer', $headerFooter->getOddFooter(), 'Unexpected value in oddFooter');
+        static::assertStringContainsString('12Right area footer', $headerFooter->getOddFooter(), 'Unexpected value in oddFooter');
 
         $drawings = $sheet->getDrawingCollection();
         static::assertCount(1, $drawings, 'Not enough drawings exist');
