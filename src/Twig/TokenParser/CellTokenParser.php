@@ -26,7 +26,7 @@ class CellTokenParser extends BaseTokenParser
 
     public function createNode(array $nodes = [], int $lineNo = 0): Node
     {
-        return new CellNode($nodes, $this->getAttributes(), $lineNo, $this->getTag());
+        return new CellNode($nodes, $this->getAttributes(), $lineNo);
     }
 
     public function getTag(): string

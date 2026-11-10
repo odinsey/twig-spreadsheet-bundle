@@ -1,3 +1,9 @@
+## 1.1.1
+
+ * Removed the two remaining families of Twig deprecations raised on every template compilation, without any change in the generated documents (xlsx XML compared before/after on all test templates).
+   * The `tag` constructor argument of the nodes is removed (deprecated since Twig 3.12): `AlignmentNode`, `CellNode`, `DocumentNode`, `DrawingNode`, `HeaderFooterNode`, `RowNode`, `SheetNode`. **BC break for code instantiating these nodes directly**: `AlignmentNode` and `HeaderFooterNode` now take `$alignment` / `$baseType` as 4th argument. The tag is set by the Twig parser.
+   * All nodes are flagged `#[\Twig\Attribute\YieldReady]` (deprecated since Twig 3.9). `CellNode`, `AlignmentNode` and `DocumentNode` no longer use `ob_start()` / `ob_get_clean()` in the compiled code but Twig's `CaptureNode`, so they work with `use_yield` enabled or not.
+
 ## 1.1.0
 
  * Compatibility with recent Twig 3.x: removed the deprecations raised on every template compilation.
