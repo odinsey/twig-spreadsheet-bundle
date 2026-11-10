@@ -2,7 +2,6 @@
 
 namespace MewesK\TwigSpreadsheetBundle\Twig;
 
-use MewesK\TwigSpreadsheetBundle\Twig\NodeVisitor\MacroContextNodeVisitor;
 use MewesK\TwigSpreadsheetBundle\Twig\NodeVisitor\SyntaxCheckNodeVisitor;
 use MewesK\TwigSpreadsheetBundle\Twig\TokenParser\AlignmentTokenParser;
 use MewesK\TwigSpreadsheetBundle\Twig\TokenParser\CellTokenParser;
@@ -56,7 +55,6 @@ class TwigSpreadsheetExtension extends AbstractExtension
     public function getNodeVisitors(): array
     {
         return [
-            new MacroContextNodeVisitor(),
             new SyntaxCheckNodeVisitor(),
         ];
     }

@@ -1,3 +1,8 @@
+## 1.1.2
+
+ * Fixed the Twig 3.29 deprecation "Passing the unknown named argument "_tsb" to the macro ..." (an error in Twig 4). The spreadsheet wrapper is no longer injected as an extra argument into every macro call. `xlsdocument` now registers its wrapper as the active one (stack in `PhpSpreadsheetWrapper`, released in a `finally`), and `PhpSpreadsheetWrapper::fixContext()` reads it from there, so macros keep working without any change to templates.
+ * `MacroContextNodeVisitor` is deprecated, no longer registered and is now a no-op.
+
 ## 1.1.1
 
  * Removed the two remaining families of Twig deprecations raised on every template compilation, without any change in the generated documents (xlsx XML compared before/after on all test templates).

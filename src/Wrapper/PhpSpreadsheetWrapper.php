@@ -8,6 +8,14 @@ class PhpSpreadsheetWrapper
 {
     const INSTANCE_KEY = '_tsb';
 
+    /**
+     * Stack of the wrappers of the documents currently being rendered (innermost last).
+     * Macros get an isolated context, so they find the wrapper here instead of receiving it as argument.
+     *
+     * @var self[]
+     */
+    private static array $active = [];
+
     private DocumentWrapper $documentWrapper;
     private SheetWrapper $sheetWrapper;
     private RowWrapper $rowWrapper;
@@ -30,16 +38,25 @@ class PhpSpreadsheetWrapper
 
     public static function fixContext(array $context): array
     {
-        if (!isset($context[self::INSTANCE_KEY]) && isset($context['varargs']) && is_array($context['varargs'])) {
-            $args = $context['varargs'];
-            foreach ($args as $arg) {
-                if ($arg instanceof self) {
-                    $context[self::INSTANCE_KEY] = $arg;
-                }
-            }
+        if (!isset($context[self::INSTANCE_KEY]) && self::$active !== []) {
+            $context[self::INSTANCE_KEY] = self::$active[array_key_last(self::$active)];
         }
 
         return $context;
+    }
+
+    public function activate(): void
+    {
+        self::$active[] = $this;
+    }
+
+    public function deactivate(): void
+    {
+        $key = array_search($this, self::$active, true);
+        if ($key !== false) {
+            unset(self::$active[$key]);
+            self::$active = array_values(self::$active);
+        }
     }
 
     /**
