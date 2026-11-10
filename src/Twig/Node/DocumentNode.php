@@ -16,6 +16,9 @@ class DocumentNode extends BaseNode
             ->write(self::CODE_INSTANCE.' = new '.PhpSpreadsheetWrapper::class.'($context, $this->env, ')
                 ->repr($this->attributes)
             ->raw(');'.PHP_EOL)
+            ->write(self::CODE_INSTANCE.'->activate();'.PHP_EOL)
+            ->write('try {'.PHP_EOL)
+            ->indent()
             ->write(self::CODE_INSTANCE.'->startDocument(')
                 ->subcompile($this->getNode('properties'))
             ->raw(');'.PHP_EOL)
@@ -24,6 +27,12 @@ class DocumentNode extends BaseNode
         $compiler
             ->addDebugInfo($this)
             ->write(self::CODE_INSTANCE.'->endDocument();'.PHP_EOL)
+            ->outdent()
+            ->write('} finally {'.PHP_EOL)
+            ->indent()
+            ->write(self::CODE_INSTANCE.'->deactivate();'.PHP_EOL)
+            ->outdent()
+            ->write('}'.PHP_EOL)
             ->write('unset('.self::CODE_INSTANCE.');'.PHP_EOL);
     }
 

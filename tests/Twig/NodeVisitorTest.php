@@ -86,13 +86,31 @@ TWIG;
         }
     }
 
-    public function testMacroContextIsInjectedIntoMacroCalls(): void
+    public function testMacroCallsDoNotReceiveTheWrapperAsArgument(): void
     {
         $compiled = $this->createEnvironment()->compileSource(new Source(self::MACRO_TEMPLATE, 'macro_blocks.twig'));
 
-        // the wrapper instance must be passed to the macro call (named argument on recent Twig,
-        // trailing varargs element on older Twig): both forms read it from the template context
-        static::assertMatchesRegularExpression('/\$context\[[\'"]'.PhpSpreadsheetWrapper::INSTANCE_KEY.'[\'"]\]/', $compiled);
+        // passing an unknown "_tsb" argument is deprecated since Twig 3.29 and rejected by Twig 4
+        static::assertDoesNotMatchRegularExpression('/[\'"]'.PhpSpreadsheetWrapper::INSTANCE_KEY.'[\'"]\s*=>/', $compiled);
+    }
+
+    public function testMacroFindsTheActiveWrapperWithoutDeprecations(): void
+    {
+        $cache = sys_get_temp_dir().'/tsb_macro_test';
+        $environment = new Environment(new ArrayLoader(['macro_blocks.twig' => self::MACRO_TEMPLATE]), ['debug' => true, 'strict_variables' => true, 'cache' => false]);
+        $environment->addExtension(new TwigSpreadsheetExtension(['cache' => ['bitmap' => $cache.'/bitmap', 'xml' => false]]));
+        $template = $environment->load('macro_blocks.twig');
+
+        $deprecations = $this->collectDeprecations(static function () use ($template): void {
+            ob_start();
+            try {
+                $template->render([]);
+            } finally {
+                ob_end_clean();
+            }
+        });
+
+        static::assertSame([], array_values(array_filter($deprecations, static fn (string $m): bool => str_contains($m, '_tsb'))));
     }
 
     public function testSyntaxCheckRejectsNodeInsideForbiddenParent(): void
