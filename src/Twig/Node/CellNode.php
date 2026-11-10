@@ -2,8 +2,10 @@
 
 namespace MewesK\TwigSpreadsheetBundle\Twig\Node;
 
+use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 
+#[YieldReady]
 class CellNode extends BaseNode
 {
     public function compile(Compiler $compiler): void
@@ -13,9 +15,10 @@ class CellNode extends BaseNode
             ->write(self::CODE_INSTANCE.'->setCellIndex(')
                 ->subcompile($this->getNode('index'))
             ->raw(');'.PHP_EOL)
-            ->write("ob_start();\n")
-            ->subcompile($this->getNode('body'))
-            ->write('$cellValue = trim(ob_get_clean());'.PHP_EOL)
+            ;
+        $this->compileCapture($compiler, $this->getNode('body'), '$cellValue');
+        $compiler
+            ->write('$cellValue = trim($cellValue);'.PHP_EOL)
             ->write(self::CODE_INSTANCE.'->startCell($cellValue, ')
                 ->subcompile($this->getNode('properties'))
             ->raw(');'.PHP_EOL)

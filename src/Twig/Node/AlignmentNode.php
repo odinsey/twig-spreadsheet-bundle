@@ -3,8 +3,10 @@
 namespace MewesK\TwigSpreadsheetBundle\Twig\Node;
 
 use MewesK\TwigSpreadsheetBundle\Wrapper\HeaderFooterWrapper;
+use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 
+#[YieldReady]
 class AlignmentNode extends BaseNode
 {
     private string $alignment;
@@ -12,9 +14,9 @@ class AlignmentNode extends BaseNode
     /**
      * @throws \InvalidArgumentException
      */
-    public function __construct(array $nodes = [], array $attributes = [], int $lineNo = 0, ?string $tag = null, string $alignment = HeaderFooterWrapper::ALIGNMENT_CENTER)
+    public function __construct(array $nodes = [], array $attributes = [], int $lineNo = 0, string $alignment = HeaderFooterWrapper::ALIGNMENT_CENTER)
     {
-        parent::__construct($nodes, $attributes, $lineNo, $tag);
+        parent::__construct($nodes, $attributes, $lineNo);
 
         $this->alignment = HeaderFooterWrapper::validateAlignment(strtolower($alignment));
     }
@@ -26,9 +28,10 @@ class AlignmentNode extends BaseNode
             ->write(self::CODE_INSTANCE.'->startAlignment(')
                 ->repr($this->alignment)
             ->raw(');'.PHP_EOL)
-            ->write("ob_start();\n")
-            ->subcompile($this->getNode('body'))
-            ->write('$alignmentValue = trim(ob_get_clean());'.PHP_EOL)
+            ;
+        $this->compileCapture($compiler, $this->getNode('body'), '$alignmentValue');
+        $compiler
+            ->write('$alignmentValue = trim($alignmentValue);'.PHP_EOL)
             ->write(self::CODE_INSTANCE.'->endAlignment($alignmentValue);'.PHP_EOL)
             ->write('unset($alignmentValue);'.PHP_EOL);
     }

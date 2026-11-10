@@ -2,8 +2,10 @@
 
 namespace MewesK\TwigSpreadsheetBundle\Twig\Node;
 
+use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 
+#[YieldReady]
 class DrawingNode extends BaseNode
 {
     public function compile(Compiler $compiler): void
